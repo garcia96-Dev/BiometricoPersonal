@@ -1,0 +1,542 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Título -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="⚙️ Ajustes"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Jornada vigente Colombia -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardBackgroundColor="#E8F5E9"
+            app:cardCornerRadius="12dp">
+            <TextView
+                android:id="@+id/tvJornadaVigente"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="14dp"
+                android:text="📋 Jornada legal vigente hoy: ..."
+                android:textSize="13sp"
+                android:textColor="#2E7D32"/>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- === SECCIÓN: DATOS PERSONALES === -->
+        <TextView style="@style/SectionHeader" android:text="👤 Datos personales"/>
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/SettingsCard">
+            <LinearLayout style="@style/SettingsCardContent">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Nombre del trabajador"
+                    android:layout_marginBottom="10dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etNombreTrabajador"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPersonName"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Empresa"
+                    android:layout_marginBottom="10dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etEmpresa"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textCapWords"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Cargo"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etCargo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textCapWords"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- === SECCIÓN: JORNADA LABORAL (Ley 2101/2021) === -->
+        <TextView style="@style/SectionHeader" android:text="⚖️ Jornada Laboral — Ley 2101 de 2021"/>
+
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsCard">
+            <LinearLayout style="@style/SettingsCardContent">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Selecciona la jornada que aplica a tu contrato:"
+                    android:textSize="13sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="8dp"/>
+
+                <Spinner
+                    android:id="@+id/spinnerJornada"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"/>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchJornadaPersonalizada"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Usar horas personalizadas"
+                    android:layout_marginBottom="8dp"/>
+
+                <LinearLayout
+                    android:id="@+id/layoutHorasPersonalizadas"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:visibility="gone">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Horas semanales"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etHorasPersonalizadas"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:text="44"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="horas/sem"
+                        android:textSize="13sp"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- === SECCIÓN: HORARIO DIARIO === -->
+        <TextView style="@style/SectionHeader" android:text="🕐 Horario diario"/>
+
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsCard">
+            <LinearLayout style="@style/SettingsCardContent">
+
+                <!-- Hora entrada -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Hora de entrada"/>
+                    <TextView
+                        android:id="@+id/tvHoraEntrada"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="08:00"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:fontFamily="monospace"
+                        android:layout_marginEnd="8dp"/>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnPickerEntrada"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cambiar"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+                </LinearLayout>
+
+                <!-- Hora salida -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Hora de salida"/>
+                    <TextView
+                        android:id="@+id/tvHoraSalida"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="17:00"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:fontFamily="monospace"
+                        android:layout_marginEnd="8dp"/>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnPickerSalida"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cambiar"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+                </LinearLayout>
+
+                <!-- Almuerzo slider -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Duración del almuerzo"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <com.google.android.material.slider.Slider
+                        android:id="@+id/sliderAlmuerzo"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:valueFrom="0"
+                        android:valueTo="120"
+                        android:stepSize="5"
+                        android:value="60"/>
+                    <TextView
+                        android:id="@+id/tvAlmuerzoValor"
+                        android:layout_width="60dp"
+                        android:layout_height="wrap_content"
+                        android:text="60 min"
+                        android:gravity="end"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- === SECCIÓN: DÍAS LABORALES === -->
+        <TextView style="@style/SectionHeader" android:text="📅 Días laborales"/>
+
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsCard">
+            <LinearLayout style="@style/SettingsCardContent">
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/checkLunes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Lunes"
+                    android:checked="true"/>
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/checkMartes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Martes"
+                    android:checked="true"/>
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/checkMiercoles"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Miércoles"
+                    android:checked="true"/>
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/checkJueves"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Jueves"
+                    android:checked="true"/>
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/checkViernes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Viernes"
+                    android:checked="true"/>
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/checkSabado"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Sábado"
+                    android:checked="false"/>
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/checkDomingo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Domingo"
+                    android:checked="false"/>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- === SECCIÓN: TOLERANCIAS === -->
+        <TextView style="@style/SectionHeader" android:text="⏱️ Tolerancias"/>
+
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsCard">
+            <LinearLayout style="@style/SettingsCardContent">
+
+                <TextView android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Tolerancia llegada tarde"/>
+                <LinearLayout android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <com.google.android.material.slider.Slider
+                        android:id="@+id/sliderToleranciaEntrada"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:valueFrom="0"
+                        android:valueTo="30"
+                        android:stepSize="1"
+                        android:value="5"/>
+                    <TextView
+                        android:id="@+id/tvToleranciaEntradaValor"
+                        android:layout_width="60dp"
+                        android:layout_height="wrap_content"
+                        android:text="5 min"
+                        android:gravity="end"/>
+                </LinearLayout>
+
+                <TextView android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Tolerancia salida anticipada"/>
+                <LinearLayout android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <com.google.android.material.slider.Slider
+                        android:id="@+id/sliderToleranciaSalida"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:valueFrom="0"
+                        android:valueTo="30"
+                        android:stepSize="1"
+                        android:value="5"/>
+                    <TextView
+                        android:id="@+id/tvToleranciaSalidaValor"
+                        android:layout_width="60dp"
+                        android:layout_height="wrap_content"
+                        android:text="5 min"
+                        android:gravity="end"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- === SECCIÓN: RECARGOS COLOMBIA === -->
+        <TextView style="@style/SectionHeader" android:text="💰 Recargos legales Colombia"/>
+
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsCard">
+            <LinearLayout style="@style/SettingsCardContent">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Jornada nocturna (Reforma Laboral 2024)"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Inicio jornada nocturna"/>
+                    <TextView
+                        android:id="@+id/tvInicioNocturna"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="19:00"
+                        android:textStyle="bold"
+                        android:fontFamily="monospace"
+                        android:layout_marginEnd="8dp"/>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnPickerInicioNocturna"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cambiar"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Fin jornada nocturna"/>
+                    <TextView
+                        android:id="@+id/tvFinNocturna"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="06:00"
+                        android:textStyle="bold"
+                        android:fontFamily="monospace"
+                        android:layout_marginEnd="8dp"/>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnPickerFinNocturna"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cambiar"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+                </LinearLayout>
+
+                <!-- Info recargos legales -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="#FFF8E1"
+                    app:cardCornerRadius="8dp"
+                    android:layout_marginBottom="12dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="📌 Recargos legales vigentes:"
+                            android:textStyle="bold"
+                            android:textSize="13sp"
+                            android:layout_marginBottom="6dp"/>
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="• Nocturno (7pm-6am): +35%\n• Extra diurna: +25%\n• Extra nocturna: +75%\n• Dominical/festivo: +75%\n• Extra dominical diurna: +100%\n• Extra dominical nocturna: +150%"
+                            android:textSize="12sp"
+                            android:lineSpacingExtra="3dp"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnResetRecargos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="↺ Restablecer recargos legales Colombia"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- === SECCIÓN: BIOMÉTRICO === -->
+        <TextView style="@style/SectionHeader" android:text="🔐 Seguridad"/>
+
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsCard">
+            <LinearLayout style="@style/SettingsCardContent">
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchHuella"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Usar huella dactilar / Face ID"
+                    android:checked="true"
+                    android:layout_marginBottom="8dp"/>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchPin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Usar PIN como respaldo"
+                    android:checked="false"/>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- === SECCIÓN: NOTIFICACIONES === -->
+        <TextView style="@style/SectionHeader" android:text="🔔 Notificaciones"/>
+
+        <com.google.android.material.card.MaterialCardView style="@style/SettingsCard">
+            <LinearLayout style="@style/SettingsCardContent">
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchNotifEntrada"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Recordatorio de entrada"
+                    android:checked="true"
+                    android:layout_marginBottom="8dp"/>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchNotifSalida"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Recordatorio de salida"
+                    android:checked="true"
+                    android:layout_marginBottom="12dp"/>
+
+                <TextView android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Minutos antes de notificar"/>
+                <LinearLayout android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <com.google.android.material.slider.Slider
+                        android:id="@+id/sliderMinutosNotif"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:valueFrom="0"
+                        android:valueTo="60"
+                        android:stepSize="5"
+                        android:value="10"/>
+                    <TextView
+                        android:id="@+id/tvMinutosNotifValor"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:text="10 min antes"
+                        android:gravity="end"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Botón Guardar -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnGuardar"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="32dp"
+            android:text="💾  GUARDAR CONFIGURACIÓN"
+            android:textSize="16sp"
+            app:cornerRadius="12dp"/>
+
+    </LinearLayout>
+</ScrollView>

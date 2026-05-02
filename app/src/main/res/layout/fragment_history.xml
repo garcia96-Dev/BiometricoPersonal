@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background"
+    android:padding="16dp">
+
+    <!-- Encabezado del mes -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="📅 Historial"
+            android:textSize="22sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/tvMesActual"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mayo 2025"
+            android:textSize="14sp"
+            android:textColor="@color/primary"/>
+    </LinearLayout>
+
+    <!-- Resumen del mes -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        app:cardCornerRadius="12dp"
+        app:cardBackgroundColor="@color/primary">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total horas"
+                    android:textColor="#CCffffff"
+                    android:textSize="11sp"/>
+                <TextView
+                    android:id="@+id/tvTotalHoras"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0.0h"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Horas extra"
+                    android:textColor="#CCffffff"
+                    android:textSize="11sp"/>
+                <TextView
+                    android:id="@+id/tvTotalExtras"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0.0h"
+                    android:textColor="#FFD740"
+                    android:textSize="20sp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Días asistidos"
+                    android:textColor="#CCffffff"
+                    android:textSize="11sp"/>
+                <TextView
+                    android:id="@+id/tvDiasAsistidos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Lista de registros -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerRegistros"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"/>
+
+    <TextView
+        android:id="@+id/tvSinRegistros"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="📭 No hay registros este mes"
+        android:gravity="center"
+        android:textSize="15sp"
+        android:textColor="@color/text_secondary"
+        android:padding="32dp"
+        android:visibility="gone"/>
+
+</LinearLayout>
