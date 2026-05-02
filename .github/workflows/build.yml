@@ -19,14 +19,18 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Instalar Gradle 8.2
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.2'
+
       - name: Configurar Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Reparar y compilar
-        run: |
-          sed -i 's/\r//' gradlew
-          chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+      - name: Compilar APK
+        run: gradle assembleDebug --no-daemon
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
 
       - name: Subir APK como artefacto
         uses: actions/upload-artifact@v4
