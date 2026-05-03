@@ -10,19 +10,18 @@ import kotlinx.coroutines.launch
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository: BiometricoRepository
-    val configuracion = repository.run {
-        val db = BiometricoDatabase.getDatabase(application)
-        BiometricoRepository(db).also { repository = it }.configuracion
-    }
+    private val repository: BiometricoRepository = BiometricoRepository(
+        BiometricoDatabase.getDatabase(application)
+    )
 
-    // Jornada legal actual Colombia (Ley 2101/2021)
+    val configuracion = repository.configuracion
+
     val jornadasLegales = listOf(
         JornadaLegal("48h (antes 2023)", "48", "Jornada anterior a la Ley 2101"),
         JornadaLegal("47h (Jul 2023)", "47", "Reducción 1ª etapa"),
         JornadaLegal("46h (Jul 2024)", "46", "Reducción 2ª etapa"),
         JornadaLegal("44h (Jul 2025)", "44", "Reducción 3ª etapa ← Actual"),
-        JornadaLegal("42h (Jul 2026)", "42", "Reducción final - meta de la ley"),
+        JornadaLegal("42h (Jul 2026)", "42", "Reducción final - meta de la ley")
     )
 
     fun guardarConfiguracion(config: ConfiguracionHorario) {
