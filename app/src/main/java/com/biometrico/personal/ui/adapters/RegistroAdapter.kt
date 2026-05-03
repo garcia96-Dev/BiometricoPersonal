@@ -11,7 +11,9 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-class RegistroAdapter : ListAdapter<RegistroAsistencia, RegistroAdapter.ViewHolder>(DiffCallback()) {
+class RegistroAdapter(
+    private val onEliminar: (RegistroAsistencia) -> Unit = {}
+) : ListAdapter<RegistroAsistencia, RegistroAdapter.ViewHolder>(DiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemRegistroBinding.inflate(
@@ -21,17 +23,16 @@ class RegistroAdapter : ListAdapter<RegistroAsistencia, RegistroAdapter.ViewHold
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind(getItem(position), onEliminar)
     }
 
     class ViewHolder(private val binding: ItemRegistroBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(registro: RegistroAsistencia) {
+        fun bind(registro: RegistroAsistencia, onEliminar: (RegistroAsistencia) -> Unit) {
             val fecha = LocalDate.parse(registro.fecha)
             val formatter = DateTimeFormatter.ofPattern("EEE dd/MM", Locale("es", "CO"))
             binding.tvFecha.text = fecha.format(formatter).replaceFirstChar { it.uppercase() }
-
             binding.tvEntrada.text = registro.horaEntrada ?: "--:--"
             binding.tvSalida.text = registro.horaSalida ?: "--:--"
 
@@ -48,7 +49,13 @@ class RegistroAdapter : ListAdapter<RegistroAsistencia, RegistroAdapter.ViewHold
                 binding.tvExtra.visibility = android.view.View.GONE
             }
 
-            // Color según estado
+            if (registro.observaciones.isNotEmpty()) {
+                binding.tvObservaciones.text = "📝 ${registro.observaciones}"
+                binding.tvObservaciones.visibility = android.view.View.VISIBLE
+            } else {
+                binding.tvObservaciones.visibility = android.view.View.GONE
+            }
+
             val colorRes = when {
                 registro.horaSalida != null -> android.R.color.holo_green_light
                 registro.horaEntrada != null -> android.R.color.holo_orange_light
@@ -57,6 +64,8 @@ class RegistroAdapter : ListAdapter<RegistroAsistencia, RegistroAdapter.ViewHold
             binding.viewIndicador.setBackgroundColor(
                 binding.root.context.getColor(colorRes)
             )
+
+            binding.btnEliminar.setOnClickListener { onEliminar(registro) }
         }
     }
 
