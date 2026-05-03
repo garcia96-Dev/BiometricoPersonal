@@ -25,7 +25,7 @@ class BiometricoRepository(database: BiometricoDatabase) {
         val ahora = java.time.LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
         val existente = registroDao.getRegistroPorFecha(hoy)
         return if (existente != null) {
-            existente // ya hay registro de hoy
+            existente
         } else {
             val nuevo = RegistroAsistencia(
                 fecha = hoy,
@@ -41,25 +41,20 @@ class BiometricoRepository(database: BiometricoDatabase) {
         val hoy = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
         val ahora = java.time.LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
         val registro = registroDao.getRegistroPorFecha(hoy) ?: return null
-
         if (registro.horaEntrada == null) return null
 
         val entrada = java.time.LocalTime.parse(registro.horaEntrada, DateTimeFormatter.ofPattern("HH:mm"))
         val salida = java.time.LocalTime.parse(ahora, DateTimeFormatter.ofPattern("HH:mm"))
-
         var minutosTrabajados = java.time.Duration.between(entrada, salida).toMinutes().toInt()
-        minutosTrabajados -= config.duracionAlmuerzo // restar almuerzo
+        minutosTrabajados -= config.duracionAlmuerzo
         if (minutosTrabajados < 0) minutosTrabajados = 0
 
         val horasTrabajadas = minutosTrabajados / 60f
-
-        // Calcular horas de jornada según configuración
         val horasJornada = if (config.usarJornadaPersonalizada) {
             config.horasSemanalesPersonalizadas / diasLaboralesSemana(config)
         } else {
             config.jornadaLey.toFloat() / diasLaboralesSemana(config)
         }
-
         val horasExtra = maxOf(0f, horasTrabajadas - horasJornada)
 
         val actualizado = registro.copy(
@@ -81,6 +76,14 @@ class BiometricoRepository(database: BiometricoDatabase) {
         if (config.trabajaSabado) dias++
         if (config.trabajaDomingo) dias++
         return if (dias == 0f) 5f else dias
+    }
+
+    suspend fun insertarRegistro(registro: RegistroAsistencia): Long {
+        return registroDao.insertarRegistro(registro)
+    }
+
+    suspend fun eliminarRegistro(registro: RegistroAsistencia) {
+        registroDao.eliminarRegistro(registro)
     }
 
     suspend fun getResumenMes(mes: String): ResumenMes {
