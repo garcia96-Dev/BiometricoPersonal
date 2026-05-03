@@ -11,95 +11,118 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
+        android:orientation="vertical"
         android:padding="12dp">
 
-        <!-- Indicador de color -->
-        <View
-            android:id="@+id/viewIndicador"
-            android:layout_width="4dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="12dp"
-            android:background="#4CAF50"/>
-
-        <!-- Fecha -->
-        <TextView
-            android:id="@+id/tvFecha"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:text="Lun 01/01"
-            android:textSize="13sp"
-            android:textStyle="bold"/>
-
-        <!-- Entrada -->
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Entrada"
-                android:textSize="10sp"
-                android:textColor="#888"/>
-            <TextView
-                android:id="@+id/tvEntrada"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="--:--"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:fontFamily="monospace"/>
-        </LinearLayout>
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-        <!-- Salida -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Salida"
-                android:textSize="10sp"
-                android:textColor="#888"/>
-            <TextView
-                android:id="@+id/tvSalida"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="--:--"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:fontFamily="monospace"/>
-        </LinearLayout>
+            <View
+                android:id="@+id/viewIndicador"
+                android:layout_width="4dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="12dp"
+                android:background="#4CAF50"/>
 
-        <!-- Horas -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center_horizontal">
             <TextView
-                android:id="@+id/tvHoras"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvFecha"
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:text="- -"
-                android:textSize="16sp"
+                android:text="Lun 01/01"
+                android:textSize="13sp"
                 android:textStyle="bold"/>
-            <TextView
-                android:id="@+id/tvExtra"
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Entrada"
+                    android:textSize="10sp"
+                    android:textColor="#888"/>
+                <TextView
+                    android:id="@+id/tvEntrada"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="--:--"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:fontFamily="monospace"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Salida"
+                    android:textSize="10sp"
+                    android:textColor="#888"/>
+                <TextView
+                    android:id="@+id/tvSalida"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="--:--"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:fontFamily="monospace"/>
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="+0h"
-                android:textSize="11sp"
-                android:textColor="#FF9800"
-                android:visibility="gone"/>
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:layout_marginEnd="8dp">
+                <TextView
+                    android:id="@+id/tvHoras"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="- -"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+                <TextView
+                    android:id="@+id/tvExtra"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="+0h"
+                    android:textSize="11sp"
+                    android:textColor="#FF9800"
+                    android:visibility="gone"/>
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEliminar"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:text="🗑"
+                android:textSize="14sp"
+                android:padding="0dp"
+                app:backgroundTint="#FFEBEE"
+                app:cornerRadius="8dp"
+                style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvObservaciones"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="12sp"
+            android:textColor="@color/text_secondary"
+            android:visibility="gone"/>
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
