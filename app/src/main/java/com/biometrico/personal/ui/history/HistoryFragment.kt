@@ -8,11 +8,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.biometrico.personal.data.database.BiometricoDatabase
-import com.biometrico.personal.data.model.RegistroAsistencia
 import com.biometrico.personal.data.repository.BiometricoRepository
+import com.biometrico.personal.data.repository.ResumenMes
 import com.biometrico.personal.databinding.FragmentHistoryBinding
 import com.biometrico.personal.ui.adapters.RegistroAdapter
 import kotlinx.coroutines.launch
@@ -60,7 +61,6 @@ class HistoryFragment : Fragment() {
             adapter.submitList(registros)
             binding.tvSinRegistros.visibility = if (registros.isEmpty()) View.VISIBLE else View.GONE
         }
-
         viewModel.resumen.observe(viewLifecycleOwner) { resumen ->
             resumen?.let {
                 binding.tvTotalHoras.text = "${"%.1f".format(it.totalHoras)}h"
@@ -77,13 +77,13 @@ class HistoryFragment : Fragment() {
 }
 
 class HistoryViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository: BiometricoRepository
-    val registros = repository.run {
-        val db = BiometricoDatabase.getDatabase(application)
-        BiometricoRepository(db).also { repository = it }.todosRegistros
-    }
 
-    val resumen = androidx.lifecycle.MutableLiveData<com.biometrico.personal.data.repository.ResumenMes?>()
+    private val repository: BiometricoRepository = BiometricoRepository(
+        BiometricoDatabase.getDatabase(application)
+    )
+
+    val registros = repository.todosRegistros
+    val resumen = MutableLiveData<ResumenMes?>()
 
     fun cargarMes(mes: String) {
         viewModelScope.launch {
