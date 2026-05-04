@@ -4,7 +4,10 @@ import androidx.lifecycle.LiveData
 import com.biometrico.personal.data.database.BiometricoDatabase
 import com.biometrico.personal.data.model.ConfiguracionHorario
 import com.biometrico.personal.data.model.RegistroAsistencia
+import com.biometrico.personal.data.model.getHorarioDia
 import java.time.LocalDate
+import java.time.Duration
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 class BiometricoRepository(database: BiometricoDatabase) {
@@ -22,7 +25,7 @@ class BiometricoRepository(database: BiometricoDatabase) {
 
     suspend fun registrarEntrada(): RegistroAsistencia {
         val hoy = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
-        val ahora = java.time.LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
+        val ahora = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
         val existente = registroDao.getRegistroPorFecha(hoy)
         return if (existente != null) {
             existente
@@ -39,23 +42,18 @@ class BiometricoRepository(database: BiometricoDatabase) {
 
     suspend fun registrarSalida(config: ConfiguracionHorario): RegistroAsistencia? {
         val hoy = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
-        val ahora = java.time.LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
+        val ahora = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
         val registro = registroDao.getRegistroPorFecha(hoy) ?: return null
         if (registro.horaEntrada == null) return null
 
-        val entrada = java.time.LocalTime.parse(registro.horaEntrada, DateTimeFormatter.ofPattern("HH:mm"))
-        val salida = java.time.LocalTime.parse(ahora, DateTimeFormatter.ofPattern("HH:mm"))
-        var minutosTrabajados = java.time.Duration.between(entrada, salida).toMinutes().toInt()
-        minutosTrabajados -= config.duracionAlmuerzo
-        if (minutosTrabajados < 0) minutosTrabajados = 0
+        val horasTrabajadas = calcularHorasTrabajadas(
+            registro.horaEntrada, ahora, config.duracionAlmuerzo
+        )
 
-        val horasTrabajadas = minutosTrabajados / 60f
-        val horasJornada = if (config.usarJornadaPersonalizada) {
-            config.horasSemanalesPersonalizadas / diasLaboralesSemana(config)
-        } else {
-            config.jornadaLey.toFloat() / diasLaboralesSemana(config)
-        }
-        val horasExtra = maxOf(0f, horasTrabajadas - horasJornada)
+        // Obtener horas esperadas para el día de hoy
+        val diaSemana = LocalDate.now().dayOfWeek.value // 1=Lunes, 7=Domingo
+        val horarioDia = config.getHorarioDia(diaSemana)
+        val horasExtra = maxOf(0f, horasTrabajadas - horarioDia.horasEsperadas)
 
         val actualizado = registro.copy(
             horaSalida = ahora,
@@ -66,16 +64,19 @@ class BiometricoRepository(database: BiometricoDatabase) {
         return actualizado
     }
 
-    private fun diasLaboralesSemana(config: ConfiguracionHorario): Float {
-        var dias = 0f
-        if (config.trabajaLunes) dias++
-        if (config.trabajaMartes) dias++
-        if (config.trabajaMiercoles) dias++
-        if (config.trabajaJueves) dias++
-        if (config.trabajaViernes) dias++
-        if (config.trabajaSabado) dias++
-        if (config.trabajaDomingo) dias++
-        return if (dias == 0f) 5f else dias
+    // Calcula horas trabajadas dado entrada, salida y duración de almuerzo
+    fun calcularHorasTrabajadas(
+        horaEntrada: String,
+        horaSalida: String,
+        duracionAlmuerzo: Int
+    ): Float {
+        val fmt = DateTimeFormatter.ofPattern("HH:mm")
+        val entrada = LocalTime.parse(horaEntrada, fmt)
+        val salida = LocalTime.parse(horaSalida, fmt)
+        var minutos = Duration.between(entrada, salida).toMinutes().toInt()
+        minutos -= duracionAlmuerzo
+        if (minutos < 0) minutos = 0
+        return minutos / 60f
     }
 
     suspend fun insertarRegistro(registro: RegistroAsistencia): Long {
