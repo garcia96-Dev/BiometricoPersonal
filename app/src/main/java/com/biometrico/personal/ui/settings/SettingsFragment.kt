@@ -1,236 +1,116 @@
-package com.biometrico.personal.ui.settings
+package com.biometrico.personal.data.repository
 
-import android.app.TimePickerDialog
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.Toast
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import com.biometrico.personal.R
+import androidx.lifecycle.LiveData
+import com.biometrico.personal.data.database.BiometricoDatabase
 import com.biometrico.personal.data.model.ConfiguracionHorario
-import com.biometrico.personal.databinding.FragmentSettingsBinding
+import com.biometrico.personal.data.model.RegistroAsistencia
+import com.biometrico.personal.data.model.getHorarioDia
 import java.time.LocalDate
+import java.time.Duration
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
-class SettingsFragment : Fragment() {
+class BiometricoRepository(database: BiometricoDatabase) {
 
-    private var _binding: FragmentSettingsBinding? = null
-    private val binding get() = _binding!!
-    private val viewModel: SettingsViewModel by viewModels()
-    private var configActual: ConfiguracionHorario = ConfiguracionHorario()
+    private val registroDao = database.registroDao()
+    private val configuracionDao = database.configuracionDao()
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentSettingsBinding.inflate(inflater, container, false)
-        return binding.root
+    val todosRegistros: LiveData<List<RegistroAsistencia>> = registroDao.getTodosRegistros()
+    val configuracion: LiveData<ConfiguracionHorario?> = configuracionDao.getConfiguracion()
+
+    suspend fun getRegistroHoy(): RegistroAsistencia? {
+        val hoy = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+        return registroDao.getRegistroPorFecha(hoy)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        configurarSpinnerJornada()
-        observarConfiguracion()
-        configurarListeners()
-        mostrarJornadaVigente()
-    }
-
-    private fun mostrarJornadaVigente() {
-        val hoy = LocalDate.now()
-        val jornadaVigente = when {
-            hoy >= LocalDate.of(2026, 7, 15) -> "42 horas/semana (desde Jul 2026)"
-            hoy >= LocalDate.of(2025, 7, 15) -> "44 horas/semana (desde Jul 2025) ← VIGENTE"
-            hoy >= LocalDate.of(2024, 7, 15) -> "46 horas/semana (desde Jul 2024)"
-            hoy >= LocalDate.of(2023, 7, 15) -> "47 horas/semana (desde Jul 2023)"
-            else -> "48 horas/semana (anterior)"
-        }
-        binding.tvJornadaVigente.text = "📋 Jornada legal vigente hoy: $jornadaVigente"
-    }
-
-    private fun configurarSpinnerJornada() {
-        val opciones = viewModel.jornadasLegales.map { "${it.label} — ${it.descripcion}" }
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, opciones)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.spinnerJornada.adapter = adapter
-    }
-
-    private fun observarConfiguracion() {
-        viewModel.configuracion.observe(viewLifecycleOwner) { config ->
-            config?.let {
-                configActual = it
-                llenarFormulario(it)
-            }
+    suspend fun registrarEntrada(): RegistroAsistencia {
+        val hoy = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+        val ahora = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
+        val existente = registroDao.getRegistroPorFecha(hoy)
+        return if (existente != null) {
+            existente
+        } else {
+            val nuevo = RegistroAsistencia(
+                fecha = hoy,
+                horaEntrada = ahora,
+                horaSalida = null
+            )
+            val id = registroDao.insertarRegistro(nuevo)
+            nuevo.copy(id = id)
         }
     }
 
-    private fun llenarFormulario(config: ConfiguracionHorario) {
-        // Datos personales
-        binding.etNombreTrabajador.setText(config.nombreTrabajador)
-        binding.etEmpresa.setText(config.empresaNombre)
-        binding.etCargo.setText(config.cargo)
+    suspend fun registrarSalida(config: ConfiguracionHorario): RegistroAsistencia? {
+        val hoy = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+        val ahora = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
+        val registro = registroDao.getRegistroPorFecha(hoy) ?: return null
+        if (registro.horaEntrada == null) return null
 
-        // Jornada legal
-        val idx = viewModel.jornadasLegales.indexOfFirst { it.horas == config.jornadaLey }
-        if (idx >= 0) binding.spinnerJornada.setSelection(idx)
-        binding.switchJornadaPersonalizada.isChecked = config.usarJornadaPersonalizada
-        binding.etHorasPersonalizadas.setText(config.horasSemanalesPersonalizadas.toInt().toString())
-        binding.layoutHorasPersonalizadas.visibility =
-            if (config.usarJornadaPersonalizada) View.VISIBLE else View.GONE
-
-        // Horario diario
-        binding.tvHoraEntrada.text = config.horaEntrada
-        binding.tvHoraSalida.text = config.horaSalida
-        binding.sliderAlmuerzo.value = config.duracionAlmuerzo.toFloat()
-        binding.tvAlmuerzoValor.text = "${config.duracionAlmuerzo} min"
-
-        // Días laborales
-        binding.checkLunes.isChecked = config.trabajaLunes
-        binding.checkMartes.isChecked = config.trabajaMartes
-        binding.checkMiercoles.isChecked = config.trabajaMiercoles
-        binding.checkJueves.isChecked = config.trabajaJueves
-        binding.checkViernes.isChecked = config.trabajaViernes
-        binding.checkSabado.isChecked = config.trabajaSabado
-        binding.checkDomingo.isChecked = config.trabajaDomingo
-
-        // Tolerancias
-        binding.sliderToleranciaEntrada.value = config.toleranciaEntradaMin.toFloat()
-        binding.tvToleranciaEntradaValor.text = "${config.toleranciaEntradaMin} min"
-        binding.sliderToleranciaSalida.value = config.toleranciaSalidaMin.toFloat()
-        binding.tvToleranciaSalidaValor.text = "${config.toleranciaSalidaMin} min"
-
-        // Recargos
-        binding.tvInicioNocturna.text = config.inicioJornadaNocturna
-        binding.tvFinNocturna.text = config.finJornadaNocturna
-
-        // Biométrico
-        binding.switchHuella.isChecked = config.usarHuella
-        binding.switchPin.isChecked = config.usarPin
-
-        // Notificaciones
-        binding.switchNotifEntrada.isChecked = config.notificarEntrada
-        binding.switchNotifSalida.isChecked = config.notificarSalida
-        binding.sliderMinutosNotif.value = config.minutosAntesNotificacion.toFloat()
-        binding.tvMinutosNotifValor.text = "${config.minutosAntesNotificacion} min antes"
-    }
-
-    private fun configurarListeners() {
-        // Jornada personalizada toggle
-        binding.switchJornadaPersonalizada.setOnCheckedChangeListener { _, isChecked ->
-            binding.layoutHorasPersonalizadas.visibility = if (isChecked) View.VISIBLE else View.GONE
-        }
-
-        // Time pickers
-        binding.btnPickerEntrada.setOnClickListener {
-            mostrarTimePicker(configActual.horaEntrada) { hora ->
-                binding.tvHoraEntrada.text = hora
-            }
-        }
-        binding.btnPickerSalida.setOnClickListener {
-            mostrarTimePicker(configActual.horaSalida) { hora ->
-                binding.tvHoraSalida.text = hora
-            }
-        }
-        binding.btnPickerInicioNocturna.setOnClickListener {
-            mostrarTimePicker(configActual.inicioJornadaNocturna) { hora ->
-                binding.tvInicioNocturna.text = hora
-            }
-        }
-        binding.btnPickerFinNocturna.setOnClickListener {
-            mostrarTimePicker(configActual.finJornadaNocturna) { hora ->
-                binding.tvFinNocturna.text = hora
-            }
-        }
-
-        // Sliders
-        binding.sliderAlmuerzo.addOnChangeListener { _, value, _ ->
-            binding.tvAlmuerzoValor.text = "${value.toInt()} min"
-        }
-        binding.sliderToleranciaEntrada.addOnChangeListener { _, value, _ ->
-            binding.tvToleranciaEntradaValor.text = "${value.toInt()} min"
-        }
-        binding.sliderToleranciaSalida.addOnChangeListener { _, value, _ ->
-            binding.tvToleranciaSalidaValor.text = "${value.toInt()} min"
-        }
-        binding.sliderMinutosNotif.addOnChangeListener { _, value, _ ->
-            binding.tvMinutosNotifValor.text = "${value.toInt()} min antes"
-        }
-
-        // Botón guardar
-        binding.btnGuardar.setOnClickListener {
-            guardarConfiguracion()
-        }
-
-        // Botón reset recargos Colombia
-        binding.btnResetRecargos.setOnClickListener {
-            resetearRecargosLegales()
-        }
-    }
-
-    private fun mostrarTimePicker(horaActual: String, callback: (String) -> Unit) {
-        val partes = horaActual.split(":")
-        val hora = partes[0].toInt()
-        val minuto = partes[1].toInt()
-        TimePickerDialog(requireContext(), { _, h, m ->
-            callback("%02d:%02d".format(h, m))
-        }, hora, minuto, true).show()
-    }
-
-    private fun resetearRecargosLegales() {
-        Toast.makeText(context,
-            "Recargos restablecidos según Ley 2101 y Reforma Laboral 2024",
-            Toast.LENGTH_LONG).show()
-        binding.tvInicioNocturna.text = "19:00"
-        binding.tvFinNocturna.text = "06:00"
-    }
-
-    private fun guardarConfiguracion() {
-        val jornadaIdx = binding.spinnerJornada.selectedItemPosition
-        val jornadaSeleccionada = viewModel.jornadasLegales[jornadaIdx].horas
-
-        val config = configActual.copy(
-            nombreTrabajador = binding.etNombreTrabajador.text.toString(),
-            empresaNombre = binding.etEmpresa.text.toString(),
-            cargo = binding.etCargo.text.toString(),
-
-            jornadaLey = jornadaSeleccionada,
-            usarJornadaPersonalizada = binding.switchJornadaPersonalizada.isChecked,
-            horasSemanalesPersonalizadas = binding.etHorasPersonalizadas.text.toString()
-                .toFloatOrNull() ?: 44f,
-
-            horaEntrada = binding.tvHoraEntrada.text.toString(),
-            horaSalida = binding.tvHoraSalida.text.toString(),
-            duracionAlmuerzo = binding.sliderAlmuerzo.value.toInt(),
-
-            trabajaLunes = binding.checkLunes.isChecked,
-            trabajaMartes = binding.checkMartes.isChecked,
-            trabajaMiercoles = binding.checkMiercoles.isChecked,
-            trabajaJueves = binding.checkJueves.isChecked,
-            trabajaViernes = binding.checkViernes.isChecked,
-            trabajaSabado = binding.checkSabado.isChecked,
-            trabajaDomingo = binding.checkDomingo.isChecked,
-
-            toleranciaEntradaMin = binding.sliderToleranciaEntrada.value.toInt(),
-            toleranciaSalidaMin = binding.sliderToleranciaSalida.value.toInt(),
-
-            inicioJornadaNocturna = binding.tvInicioNocturna.text.toString(),
-            finJornadaNocturna = binding.tvFinNocturna.text.toString(),
-
-            usarHuella = binding.switchHuella.isChecked,
-            usarPin = binding.switchPin.isChecked,
-
-            notificarEntrada = binding.switchNotifEntrada.isChecked,
-            notificarSalida = binding.switchNotifSalida.isChecked,
-            minutosAntesNotificacion = binding.sliderMinutosNotif.value.toInt()
+        val horasTrabajadas = calcularHorasTrabajadas(
+            registro.horaEntrada, ahora, config.duracionAlmuerzo
         )
 
-        viewModel.guardarConfiguracion(config)
-        Toast.makeText(context, "✅ Configuración guardada", Toast.LENGTH_SHORT).show()
+        // Obtener horas esperadas para el día de hoy
+        val diaSemana = LocalDate.now().dayOfWeek.value // 1=Lunes, 7=Domingo
+        val horarioDia = config.getHorarioDia(diaSemana)
+        val horasExtra = maxOf(0f, horasTrabajadas - horarioDia.horasEsperadas)
+
+        val actualizado = registro.copy(
+            horaSalida = ahora,
+            horasTrabajadas = horasTrabajadas,
+            horasExtra = horasExtra
+        )
+        registroDao.actualizarRegistro(actualizado)
+        return actualizado
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    // Calcula horas trabajadas dado entrada, salida y duración de almuerzo
+    fun calcularHorasTrabajadas(
+        horaEntrada: String,
+        horaSalida: String,
+        duracionAlmuerzo: Int
+    ): Float {
+        val fmt = DateTimeFormatter.ofPattern("HH:mm")
+        val entrada = LocalTime.parse(horaEntrada, fmt)
+        val salida = LocalTime.parse(horaSalida, fmt)
+        var minutos = Duration.between(entrada, salida).toMinutes().toInt()
+        minutos -= duracionAlmuerzo
+        if (minutos < 0) minutos = 0
+        return minutos / 60f
+    }
+
+    suspend fun insertarRegistro(registro: RegistroAsistencia): Long {
+        return registroDao.insertarRegistro(registro)
+    }
+
+    suspend fun eliminarRegistro(registro: RegistroAsistencia) {
+        registroDao.eliminarRegistro(registro)
+    }
+
+    suspend fun getResumenMes(mes: String): ResumenMes {
+        val registros = registroDao.getRegistrosPorMes(mes)
+        val totalHoras = registroDao.getTotalHorasMes(mes) ?: 0f
+        val totalExtras = registroDao.getTotalExtras(mes) ?: 0f
+        val diasAsistidos = registroDao.getDiasAsistidosMes(mes)
+        return ResumenMes(registros, totalHoras, totalExtras, diasAsistidos)
+    }
+
+    suspend fun guardarConfiguracion(config: ConfiguracionHorario) {
+        configuracionDao.guardarConfiguracion(config)
+    }
+
+    suspend fun getConfiguracionSync(): ConfiguracionHorario {
+        return configuracionDao.getConfiguracionSync() ?: ConfiguracionHorario()
+    }
+
+    fun getRegistrosPorRango(inicio: String, fin: String): LiveData<List<RegistroAsistencia>> {
+        return registroDao.getRegistrosPorRango(inicio, fin)
     }
 }
+
+data class ResumenMes(
+    val registros: List<RegistroAsistencia>,
+    val totalHoras: Float,
+    val totalExtras: Float,
+    val diasAsistidos: Int
+)
