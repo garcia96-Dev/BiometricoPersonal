@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 @Database(
     entities = [RegistroAsistencia::class, ConfiguracionHorario::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class BiometricoDatabase : RoomDatabase() {
@@ -31,10 +31,11 @@ abstract class BiometricoDatabase : RoomDatabase() {
                     context.applicationContext,
                     BiometricoDatabase::class.java,
                     "biometrico_database"
-                ).addCallback(object : Callback() {
+                )
+                .fallbackToDestructiveMigration()
+                .addCallback(object : Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
-                        // Insertar configuración por defecto
                         INSTANCE?.let { database ->
                             CoroutineScope(Dispatchers.IO).launch {
                                 database.configuracionDao().guardarConfiguracion(
